@@ -49,6 +49,10 @@ function default_1(sequelize) {
             allowNull: false,
             defaultValue: sequelize_1.DataTypes.NOW
         },
+        isVerified: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false
+        }
     }, {
         sequelize,
         modelName: 'User',

@@ -9,17 +9,27 @@ const cors_1 = __importDefault(require("cors"));
 const errorHandler_1 = require("./_middleware/errorHandler");
 const db_1 = require("./_helpers/db");
 const users_controller_1 = __importDefault(require("./users/users.controller"));
+const department_controller_1 = __importDefault(require("./department/department.controller"));
+const employee_controller_1 = __importDefault(require("./employee/employee.controller"));
+const request_controller_1 = __importDefault(require("./requests/request.controller"));
+console.log('requestController:', request_controller_1.default);
+const transfer_controller_1 = __importDefault(require("./transfer/transfer.controller"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)());
 app.use('/users', users_controller_1.default);
+app.use('/departments', department_controller_1.default);
+app.use('/employees', employee_controller_1.default);
+console.log('Mounting /requests');
+app.use('/requests', request_controller_1.default);
+app.use('/transfers', transfer_controller_1.default);
 app.use(errorHandler_1.errorHandler);
 const PORT = process.env.PORT || 4000;
 (0, db_1.initialize)()
     .then(() => {
     app.listen(PORT, () => {
-        console.log(`Server is running on https://localhost:${PORT}`);
+        console.log(`Server is running on http://localhost:${PORT}`);
         console.log('Test with: POST /users with {email, password, ...}');
     });
 })

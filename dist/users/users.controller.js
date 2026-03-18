@@ -49,6 +49,7 @@ function createSchema(req, res, next) {
         email: joi_1.default.string().email().empty(),
         password: joi_1.default.string().min(6).empty(),
         confirmPassword: joi_1.default.string().valid(joi_1.default.ref('password')).empty(''),
+        isVerified: joi_1.default.boolean().default(false),
     }).with('password', 'confirmPassword');
     (0, validateRequest_1.validateRequest)(req, next, schema);
 }
@@ -61,6 +62,7 @@ function updateSchema(req, res, next) {
         email: joi_1.default.string().email().empty(),
         password: joi_1.default.string().min(6).empty(),
         confirmPassword: joi_1.default.string().valid(joi_1.default.ref('password')).empty(''),
+        isVerified: joi_1.default.boolean().default(false),
     }).with('password', 'confirmPassword');
     (0, validateRequest_1.validateRequest)(req, next, schema);
 }

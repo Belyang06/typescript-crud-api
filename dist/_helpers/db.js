@@ -50,7 +50,30 @@ async function initialize() {
     await connection.end();
     const sequelize = new sequelize_1.Sequelize(database, user, password, { dialect: 'mysql' });
     const { default: userModel } = await Promise.resolve().then(() => __importStar(require('../users/user.model')));
+    const { default: departmentModel } = await Promise.resolve().then(() => __importStar(require('../department/department.model')));
+    const { default: employeeModel } = await Promise.resolve().then(() => __importStar(require('../employee/employee.model')));
+    const { default: requestModel } = await Promise.resolve().then(() => __importStar(require('../requests/requests.model')));
+    const { default: transferModel } = await Promise.resolve().then(() => __importStar(require('../transfer/transfer.model')));
     exports.db.User = userModel(sequelize);
+    exports.db.Department = departmentModel(sequelize);
+    exports.db.Employee = employeeModel(sequelize);
+    exports.db.Request = requestModel(sequelize);
+    exports.db.Transfer = transferModel(sequelize);
+    // Set up associations
+    exports.db.User.hasOne(exports.db.Employee, { foreignKey: 'userId', as: 'employee' });
+    exports.db.Employee.belongsTo(exports.db.User, { foreignKey: 'userId', as: 'user' });
+    exports.db.Department.hasMany(exports.db.Employee, { foreignKey: 'departmentId', as: 'employees' });
+    exports.db.Employee.belongsTo(exports.db.Department, { foreignKey: 'departmentId', as: 'department' });
+    exports.db.User.hasMany(exports.db.Request, { foreignKey: 'userId', as: 'requests' });
+    exports.db.Request.belongsTo(exports.db.User, { foreignKey: 'userId', as: 'user' });
+    exports.db.Employee.hasMany(exports.db.Transfer, { foreignKey: 'employeeId', as: 'transfers' });
+    exports.db.Transfer.belongsTo(exports.db.Employee, { foreignKey: 'employeeId', as: 'employee' });
+    exports.db.Department.hasMany(exports.db.Transfer, { foreignKey: 'fromDepartmentId', as: 'transfersFrom' });
+    exports.db.Department.hasMany(exports.db.Transfer, { foreignKey: 'toDepartmentId', as: 'transfersTo' });
+    exports.db.Transfer.belongsTo(exports.db.Department, { foreignKey: 'fromDepartmentId', as: 'fromDepartment' });
+    exports.db.Transfer.belongsTo(exports.db.Department, { foreignKey: 'toDepartmentId', as: 'toDepartment' });
+    exports.db.User.hasMany(exports.db.Transfer, { foreignKey: 'approvedBy', as: 'approvedTransfers' });
+    exports.db.Transfer.belongsTo(exports.db.User, { foreignKey: 'approvedBy', as: 'approver' });
     await sequelize.sync({ alter: true });
     console.log('Database initialized and models synced');
 }

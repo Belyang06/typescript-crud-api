@@ -5,6 +5,10 @@ import { Sequelize } from 'sequelize';
 
 export interface Database {
     User: any;
+    Department: any;
+    Employee: any;
+    Request: any;
+    Transfer: any;
 }
 
 export const db: Database = {} as Database;
@@ -19,7 +23,37 @@ await connection.end ();
 const sequelize = new Sequelize(database, user, password, { dialect: 'mysql'});
 
 const { default: userModel } = await import('../users/user.model');
+const { default: departmentModel } = await import('../department/department.model');
+const { default: employeeModel } = await import('../employee/employee.model');
+const { default: requestModel } = await import('../requests/requests.model');
+const { default: transferModel } = await import('../transfer/transfer.model');
+
 db.User = userModel(sequelize);
+db.Department = departmentModel(sequelize);
+db.Employee = employeeModel(sequelize);
+db.Request = requestModel(sequelize);
+db.Transfer = transferModel(sequelize);
+
+// Set up associations
+db.User.hasOne(db.Employee, { foreignKey: 'userId', as: 'employee' });
+db.Employee.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+
+db.Department.hasMany(db.Employee, { foreignKey: 'departmentId', as: 'employees' });
+db.Employee.belongsTo(db.Department, { foreignKey: 'departmentId', as: 'department' });
+
+db.User.hasMany(db.Request, { foreignKey: 'userId', as: 'requests' });
+db.Request.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+
+db.Employee.hasMany(db.Transfer, { foreignKey: 'employeeId', as: 'transfers' });
+db.Transfer.belongsTo(db.Employee, { foreignKey: 'employeeId', as: 'employee' });
+
+db.Department.hasMany(db.Transfer, { foreignKey: 'fromDepartmentId', as: 'transfersFrom' });
+db.Department.hasMany(db.Transfer, { foreignKey: 'toDepartmentId', as: 'transfersTo' });
+db.Transfer.belongsTo(db.Department, { foreignKey: 'fromDepartmentId', as: 'fromDepartment' });
+db.Transfer.belongsTo(db.Department, { foreignKey: 'toDepartmentId', as: 'toDepartment' });
+
+db.User.hasMany(db.Transfer, { foreignKey: 'approvedBy', as: 'approvedTransfers' });
+db.Transfer.belongsTo(db.User, { foreignKey: 'approvedBy', as: 'approver' });
 
 await sequelize.sync ({ alter: true});
 
